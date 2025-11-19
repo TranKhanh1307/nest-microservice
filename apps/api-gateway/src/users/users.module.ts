@@ -3,14 +3,24 @@ import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { USERS_CLIENT } from './constant';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    ClientsModule.register([
+    ClientsModule.registerAsync([
       {
+        imports: [ConfigModule],
+        inject: [ConfigService],
         name: USERS_CLIENT,
-        transport: Transport.TCP,
-        options: { host: 'localhost', port: 3002 },
+        useFactory: (configService: ConfigService) => {
+          return {
+            transport: Transport.TCP,
+            options: {
+              host: configService.get<string>('user-service.host'),
+              port: configService.get<number>('user-service.port'),
+            },
+          };
+        },
       },
     ]),
   ],
