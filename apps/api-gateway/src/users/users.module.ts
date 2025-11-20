@@ -16,8 +16,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           return {
             transport: Transport.TCP,
             options: {
-              host: configService.get<string>('user-service.host'),
-              port: configService.get<number>('user-service.port'),
+              host: configService.get<string>('USERS_SERVICE_HOST'),
+              port: configService.get<number>('USERS_SERVICE_PORT'),
             },
           };
         },
