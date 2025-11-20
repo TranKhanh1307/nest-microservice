@@ -7,13 +7,20 @@ async function bootstrap() {
   const app = await NestFactory.createMicroservice<AsyncMicroserviceOptions>(
     UsersModule,
     {
-      useFactory: (configService: ConfigService) => ({
-        transport: Transport.TCP,
-        options: {
-          host: configService.get<string>('USERS_SERVICE_HOST'),
-          port: configService.get<number>('USERS_SERVICE_PORT'),
-        },
-      }),
+      useFactory: (configService: ConfigService) => {
+        const host = configService.get<string>('USERS_SERVICE_HOST');
+        const rmqPort = configService.get<string>('RMQ_PORT');
+        return {
+          transport: Transport.RMQ,
+          options: {
+            urls: [`amqp://${host}:${rmqPort}`],
+            queue: configService.get<string>('USERS_SERVICE_QUEUE'),
+            queueOptions: {
+              durable: false,
+            },
+          },
+        };
+      },
       inject: [ConfigService],
     },
   );

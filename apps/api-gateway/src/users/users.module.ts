@@ -13,11 +13,16 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         inject: [ConfigService],
         name: USERS_CLIENT,
         useFactory: (configService: ConfigService) => {
+          const host = configService.get<string>('USERS_SERVICE_HOST');
+          const rmqPort = configService.get<string>('RMQ_PORT');
           return {
-            transport: Transport.TCP,
+            transport: Transport.RMQ,
             options: {
-              host: configService.get<string>('USERS_SERVICE_HOST'),
-              port: configService.get<number>('USERS_SERVICE_PORT'),
+              urls: [`amqp://${host}:${rmqPort}`],
+              queue: configService.get<string>('USERS_SERVICE_QUEUE'),
+              queueOptions: {
+                durable: false,
+              },
             },
           };
         },
